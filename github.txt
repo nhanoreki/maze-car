@@ -19,4 +19,6 @@ Git Collaborating
             git add .
             git commit -m "add profile"
             git push origin feature/introduction
-             
+        Commit directly on branch from GitHub console without conflict
+            git fetch
+            git pull
