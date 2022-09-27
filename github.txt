@@ -22,3 +22,6 @@ Git Collaborating
         Commit directly on branch from GitHub console without conflict
             git fetch
             git pull
+        Rebase to main branch
+            git rebase -i origin/main
+            git push origin feature/introduction -f
