@@ -1,0 +1,22 @@
+https://github.com/settings/tokens
+https://github.com/new
+Token: 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
+
+Create a new repository on the command line:
+    echo "# test" >> README.md
+    git init
+    git add README.txt
+    git commit -m "first commit"
+    git branch -M main
+    git remote add origin https://[TOKEN]@github.com/[USER]/[REPO]
+    git push -u origin main
+
+Git Collaborating
+    On the same branch
+        Create branch: git branch -M feature/introduction
+        Push branch to origin: git push --set-upstream origin feature/introduction
+        Commit code:
+            git add .
+            git commit -m "add profile"
+            git push origin feature/introduction
+             

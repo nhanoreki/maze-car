@@ -1,3 +1,7 @@
 Name: Hong Thien Nhan
 Faculty of Computer Science and Engineering
 Computer Engineering, 2021
+
+Name: Nguyen Ngoc Tue Nhi
+Faculty of Finance and Banking
+Finance and Banking, 2022
