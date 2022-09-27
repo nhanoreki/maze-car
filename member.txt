@@ -1,9 +1,23 @@
 Name: Hong Thien Nhan
 Faculty of Computer Science and Engineering
 Computer Engineering, 2021
+<<<<<<< HEAD
+<<<<<<< HEAD
 Ho Chi Minh City University of Technology
+=======
+>>>>>>> 0f9d6dd (update github.txt)
+=======
+Ho Chi Minh City University of Technology
+>>>>>>> 3a1780b (update github.txt)
 
 Name: Nguyen Ngoc Tue Nhi
 Faculty of Finance and Banking
 Finance and Banking, 2022
+<<<<<<< HEAD
+<<<<<<< HEAD
 Ton Duc Thang University
+=======
+>>>>>>> 0f9d6dd (update github.txt)
+=======
+Ton Duc Thang University
+>>>>>>> 3a1780b (update github.txt)
