@@ -6,7 +6,8 @@
 const byte encL = 2;
 const byte encR = 3; 
 
-volatile float speedValueLeft_PPS, speedValueRight_PPS;
+volatile float speedValueLeft, speedValueRight;
+volatile float speedValueLeft_SAMPLE[11], speedValueRight_SAMPLE[11];;
 volatile unsigned long currentEncoderLeft_TCNT1 = 0, currentEncoderRight_TCNT1 = 0;
 
 void setup() {
@@ -31,7 +32,23 @@ ISR (TIMER1_OVF_vect) {
 }
 
 void encoderLeft_ISR() {
-  speedValueLeft_PPS = (TCNT1 - currentEncoderLeft_TCNT1 + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+  static byte i = 0;
+  speedValueLeft_SAMPLE[10] -= speedValueLeft_SAMPLE[i];
+  speedValueLeft_SAMPLE[i] = (TCNT1 - currentEncoderLeft_TCNT1 + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+  speedValueLeft_SAMPLE[10] += speedValueLeft_SAMPLE[i];
+  speedValueLeft = 250000 / (speedValueLeft_SAMPLE[10] / 10);
+  i = (i + 1) % 10;
+  currentEncoderLeft_TCNT1 = TCNT1;
+}
+
+void encoderRight_ISR() {
+  static byte i = 0;
+  speedValueRight_SAMPLE[10] -= speedValueRight_SAMPLE[i];
+  speedValueRight_SAMPLE[i] = (TCNT1 - currentEncoderRight_TCNT1 + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+  speedValueRight_SAMPLE[10] += speedValueRight_SAMPLE[i];
+  speedValueRight = 250000 / (speedValueRight_SAMPLE[10] / 10);
+  i = (i + 1) % 10;
+  currentEncoderRight_TCNT1 = TCNT1;
 }
 
 void loop() {
