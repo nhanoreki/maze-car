@@ -13,18 +13,19 @@ void setup() {
   pinMode (IN4, OUTPUT);
 }
 
-void motorRight(int speed_pwm, bool x) {
-  speed_pwm = constrain(speed_pwm, MIN_PWM, MAX_PWM);
-  digitalWrite(IN1, x);
-  analogWrite(IN2, abs(255*x - speed_pwm));
-}
-
-void motorLeft(int speed_pwm, bool x) {
+void motorLeft(byte speed_pwm, bool x) {
   speed_pwm = constrain(speed_pwm, MIN_PWM, MAX_PWM);
   digitalWrite(IN4, x);
   analogWrite(IN3, abs(255*x - speed_pwm));
 }
 
+void motorRight(byte speed_pwm, bool x) {
+  speed_pwm = constrain(speed_pwm, MIN_PWM, MAX_PWM);
+  digitalWrite(IN1, x);
+  analogWrite(IN2, abs(255*x - speed_pwm));
+}
+
 void loop() {
-  
+  motorLeft (200, 1);
+  motorRight (200, 1);
 }
