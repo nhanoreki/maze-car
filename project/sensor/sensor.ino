@@ -19,9 +19,9 @@ volatile bool headIsRec = false;
 void setup() {
   Serial.begin(9600);
   pinMode(trig, OUTPUT);
-  pinMode(echoH, INPUT_PULLUP);
-  pinMode(echoL, INPUT_PULLUP);
-  pinMode(echoR, INPUT_PULLUP);
+  pinMode(echoH, INPUT);
+  pinMode(echoL, INPUT);
+  pinMode(echoR, INPUT);
   
   cli();
   TCCR1A = 0;
@@ -35,14 +35,19 @@ void setup() {
   PCICR |= (1 << PCIE0);
   PCMSK0 |= (1 << PCINT1) | (1 << PCINT2) | (1 << PCINT3);
   sei();
+  
   digitalWrite(trig, HIGH);
+}
+
+ISR (TIMER1_OVF_vect) {
+  TCNT1 = 0;
 }
 
 ISR (PCINT0_vect) {
   if (digitalRead(echoH) != headHigh) 
   {
     if (headHigh){
-      distanceHead = SOUND_SPEED * (((TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
+      distanceHead = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
       ++allSensor;
     } else
     {
@@ -52,7 +57,7 @@ ISR (PCINT0_vect) {
   }
   if (digitalRead(echoL) != leftHigh) {
     if (leftHigh) {
-      distanceLeft = SOUND_SPEED * (((TCNT1 - currentSensorLeft + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
+      distanceLeft = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorLeft + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
       ++allSensor;
     } else {
       currentSensorLeft = TCNT1; 
@@ -61,7 +66,7 @@ ISR (PCINT0_vect) {
   }
   if (digitalRead(echoR) != rightHigh) {
     if (rightHigh) {
-      distanceRight = SOUND_SPEED * (((TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
+      distanceRight = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
       ++allSensor;
     } else {
       currentSensorRight = TCNT1; 
@@ -75,6 +80,7 @@ ISR (PCINT0_vect) {
 }
 
 void loop() {
+  digitalWrite(trig, LOW);
   Serial.print(distanceHead);
   Serial.print(" ");
   Serial.print(distanceLeft);
