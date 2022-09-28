@@ -44,9 +44,9 @@ void setup() {
   pinMode(encL, INPUT);
   pinMode(encR, INPUT);
   pinMode(trig, OUTPUT);
-  pinMode(echoH, INPUT_PULLUP);
-  pinMode(echoL, INPUT_PULLUP);
-  pinMode(echoR, INPUT_PULLUP);
+  pinMode(echoH, INPUT);
+  pinMode(echoL, INPUT);
+  pinMode(echoR, INPUT);
   
   cli();
   // Timer/Counter
@@ -93,6 +93,17 @@ void enc_right_isr() {
 }
 
 ISR (PCINT0_vect) {
+  if (digitalRead(echoH) != headHigh) 
+  {
+    if (headHigh){
+      distanceHead = SOUND_SPEED * (((TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
+      ++allSensor;
+    } else
+    {
+      currentSensorHead = TCNT1;
+    }
+    headHigh = !headHigh;
+  }
   if (digitalRead(echoR) != rightHigh) {
     if (rightHigh) {
       distanceRight = SOUND_SPEED * (((TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
@@ -111,18 +122,6 @@ ISR (PCINT0_vect) {
     }
     leftHigh = !leftHigh;
   }
-  if (digitalRead(echoH) != headHigh) 
-  {
-    if (headHigh){
-      distanceHead = SOUND_SPEED * (((TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE) * STEP_TIME_64) / 2;
-      ++allSensor;
-    } else
-    {
-      currentSensorHead = TCNT1;
-    }
-    headHigh = !headHigh;
-  }
-
   if (allSensor == 3) {
     allSensor = 0;
     digitalWrite(trig, HIGH);
@@ -215,16 +214,7 @@ void loop() {
   digitalWrite(trig, LOW);
   Serial.print(distanceHead);
   Serial.print(" ");
-  Serial.print(counterPulse.Status*100);
+  Serial.print(distanceLeft);
   Serial.print(" ");
-  Serial.println(setSpeedPWM);
-//  Serial.print(distanceLeft);
-//  Serial.print(" ");
-//  Serial.print(distanceRight);
-//  Serial.print(" ");
-//  Serial.print(error * 10);
-//  Serial.print(" ");
-//  Serial.print(counterPulse.Status*1000);
-//  Serial.print(" ");
-//  Serial.println(counterPulse.Value*100);
+  Serial.println(distanceRight);
 }
