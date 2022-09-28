@@ -2,17 +2,28 @@
 
 #define STEP_TIME_64 4e-6
 #define TIMER1_STEP_CYCLE 65536
+#define MAX_PWM 255
+#define MIN_PWM 0
 
 const byte encL = 2;
 const byte encR = 3; 
+const byte IN1 = 4;
+const byte IN2 = 5;
+const byte IN3 = 6;
+const byte IN4 = 7;
 
 volatile float speedValueLeft, speedValueRight;
 volatile float speedValueLeft_SAMPLE[11], speedValueRight_SAMPLE[11];;
 volatile unsigned long currentEncoderLeft_TCNT1 = 0, currentEncoderRight_TCNT1 = 0;
 
 void setup() {
+  Serial.begin(9600);
   pinMode (encL, INPUT);
   pinMode (encR, INPUT);
+  pinMode (IN1, OUTPUT);
+  pinMode (IN2, OUTPUT);
+  pinMode (IN3, OUTPUT);
+  pinMode (IN4, OUTPUT);
 
   cli();
   TCCR1A = 0;
@@ -22,7 +33,7 @@ void setup() {
   TCNT1 = 0;
   TIMSK1 = (1 << TOIE1);
   sei();
-
+  
   attachInterrupt(encL - 2, encoderLeft_ISR, RISING);
   attachInterrupt(encR - 2, encoderRight_ISR, RISING);
 }
@@ -51,7 +62,23 @@ void encoderRight_ISR() {
   currentEncoderRight_TCNT1 = TCNT1;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
 
+void motorLeft(byte speed_pwm, bool x) {
+  speed_pwm = constrain(speed_pwm, MIN_PWM, MAX_PWM);
+  digitalWrite(IN4, x);
+  analogWrite(IN3, abs(255*x - speed_pwm));
+}
+
+void motorRight(byte speed_pwm, bool x) {
+  speed_pwm = constrain(speed_pwm, MIN_PWM, MAX_PWM);
+  digitalWrite(IN1, x);
+  analogWrite(IN2, abs(255*x - speed_pwm));
+}
+
+void loop() {
+  motorLeft (255, 1);
+  motorRight (255, 1);
+  Serial.print(speedValueLeft);
+  Serial.print(" ");
+  Serial.println(speedValueRight);
 }
