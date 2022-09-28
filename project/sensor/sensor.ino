@@ -11,6 +11,7 @@ const byte echoR = 11;
 
 
 volatile float distanceHead, distanceLeft, distanceRight;
+volatile float distanceHead_SAMPLE[11], distanceLeft_SAMPLE[11], distanceRight_SAMPLE[11];
 volatile unsigned long currentSensorHead = 0, currentSensorLeft = 0, currentSensorRight = 0;
 volatile byte allSensor = 0;
 volatile bool headHigh = false, leftHigh = false, rightHigh = false;
@@ -44,20 +45,28 @@ ISR (TIMER1_OVF_vect) {
 }
 
 ISR (PCINT0_vect) {
-  if (digitalRead(echoH) != headHigh) 
-  {
+  if (digitalRead(echoH) != headHigh) {
     if (headHigh){
-      distanceHead = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
+      static byte i = 0;
+      distanceHead_SAMPLE[10] -= distanceHead_SAMPLE[i];
+      distanceHead_SAMPLE[i] = (TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+      distanceHead_SAMPLE[10] += distanceHead_SAMPLE[i];
+      distanceHead = ((SOUND_SPEED * STEP_TIME_64) * (distanceHead_SAMPLE[10] / 10)) / 2;
+      i = (i + 1) % 10;
       ++allSensor;
-    } else
-    {
+    } else {
       currentSensorHead = TCNT1;
     }
     headHigh = !headHigh;
   }
   if (digitalRead(echoL) != leftHigh) {
     if (leftHigh) {
-      distanceLeft = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorLeft + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
+      static byte i = 0;
+      distanceLeft_SAMPLE[10] -= distanceLeft_SAMPLE[i];
+      distanceLeft_SAMPLE[i] = (TCNT1 - currentSensorLeft + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+      distanceLeft_SAMPLE[10] += distanceLeft_SAMPLE[i];
+      distanceLeft = ((SOUND_SPEED * STEP_TIME_64) * (distanceLeft_SAMPLE[10] / 10)) / 2;
+      i = (i + 1) % 10;
       ++allSensor;
     } else {
       currentSensorLeft = TCNT1; 
@@ -66,7 +75,12 @@ ISR (PCINT0_vect) {
   }
   if (digitalRead(echoR) != rightHigh) {
     if (rightHigh) {
-      distanceRight = ((SOUND_SPEED * STEP_TIME_64) * ((TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE)) / 2;
+      static byte i = 0;
+      distanceRight_SAMPLE[10] -= distanceRight_SAMPLE[i];
+      distanceRight_SAMPLE[i] = (TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
+      distanceRight_SAMPLE[10] += distanceRight_SAMPLE[i];
+      distanceRight = ((SOUND_SPEED * STEP_TIME_64) * (distanceRight_SAMPLE[10] / 10)) / 2;
+      i = (i + 1) % 10;
       ++allSensor;
     } else {
       currentSensorRight = TCNT1; 
@@ -81,9 +95,4 @@ ISR (PCINT0_vect) {
 
 void loop() {
   digitalWrite(trig, LOW);
-  Serial.print(distanceHead);
-  Serial.print(" ");
-  Serial.print(distanceLeft);
-  Serial.print(" ");
-  Serial.println(distanceRight);
 }
