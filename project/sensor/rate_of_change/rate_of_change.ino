@@ -11,7 +11,7 @@ const byte echoR = 11;
 
 
 volatile float distanceHead, distanceLeft, distanceRight;
-volatile float rateOfChangeDistanceHead, lastDistanceHead = 0;
+volatile float rateOfChangeDistanceHead, lastDistanceHead = 0, dt = 0;
 volatile float distanceHead_SAMPLE[11], distanceLeft_SAMPLE[11], distanceRight_SAMPLE[11];
 volatile float rateOfChangeDistanceHead_SAMPLE[11];
 volatile unsigned long currentSensorHead = 0, currentSensorLeft = 0, currentSensorRight = 0;
@@ -54,11 +54,18 @@ ISR (PCINT0_vect) {
       distanceHead_SAMPLE[i] = (TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
       distanceHead_SAMPLE[10] += distanceHead_SAMPLE[i];
       distanceHead = ((SOUND_SPEED * STEP_TIME_64) * (distanceHead_SAMPLE[10] / 10)) / 2;
-      rateOfChangeDistanceHead_SAMPLE[10] -= rateOfChangeDistanceHead_SAMPLE[i];
-      rateOfChangeDistanceHead_SAMPLE[i] = (distanceHead - lastDistanceHead) / ((distanceHead_SAMPLE[10] / 10) * STEP_TIME_64);
-      rateOfChangeDistanceHead_SAMPLE[10] += rateOfChangeDistanceHead_SAMPLE[i];
-      rateOfChangeDistanceHead = rateOfChangeDistanceHead_SAMPLE[10] / 10;
-      lastDistanceHead = distanceHead;
+      dt += distanceHead_SAMPLE[10] / 10;
+      if (i % 5 == 0) {
+        static byte j = 0;
+        rateOfChangeDistanceHead_SAMPLE[10] -= rateOfChangeDistanceHead_SAMPLE[j];
+        rateOfChangeDistanceHead_SAMPLE[j] = (distanceHead - lastDistanceHead) / (dt * STEP_TIME_64);
+        rateOfChangeDistanceHead_SAMPLE[10] += rateOfChangeDistanceHead_SAMPLE[j];
+        rateOfChangeDistanceHead = rateOfChangeDistanceHead_SAMPLE[10] / 10;
+        lastDistanceHead = distanceHead;
+        dt = 0;
+        j = (j + 1) % 10;
+      }
+      
       i = (i + 1) % 10;
       ++allSensor;
     } else {
