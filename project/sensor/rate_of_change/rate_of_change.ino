@@ -11,9 +11,10 @@ const byte echoR = 11;
 
 
 volatile float distanceHead, distanceLeft, distanceRight;
-volatile float rateOfChangeDistanceHead, lastDistanceHead = 0;
+volatile float rateOfChangeDistanceHead, rateOfChangeDistanceLeft, rateOfChangeDistanceRight;
+volatile float lastDistanceHead = 0, lastDistanceLeft = 0, lastDistanceRight = 0;
 volatile float distanceHead_SAMPLE[11], distanceLeft_SAMPLE[11], distanceRight_SAMPLE[11];
-volatile float rateOfChangeDistanceHead_SAMPLE[11];
+volatile float rateOfChangeDistanceHead_SAMPLE[11], rateOfChangeDistanceLeft_SAMPLE[11], rateOfChangeDistanceRight_SAMPLE[11];
 volatile unsigned long currentSensorHead = 0, currentSensorLeft = 0, currentSensorRight = 0;
 volatile byte allSensor = 0;
 volatile bool headHigh = false, leftHigh = false, rightHigh = false;
@@ -73,6 +74,11 @@ ISR (PCINT0_vect) {
       distanceLeft_SAMPLE[i] = (TCNT1 - currentSensorLeft + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
       distanceLeft_SAMPLE[10] += distanceLeft_SAMPLE[i];
       distanceLeft = ((SOUND_SPEED * STEP_TIME_64) * (distanceLeft_SAMPLE[10] / 10)) / 2;
+      rateOfChangeDistanceLeft_SAMPLE[10] -= rateOfChangeDistanceLeft_SAMPLE[i];
+      rateOfChangeDistanceLeft_SAMPLE[i] = distanceLeft - lastDistanceLeft;
+      rateOfChangeDistanceLeft_SAMPLE[10] += rateOfChangeDistanceLeft_SAMPLE[i];
+      rateOfChangeDistanceLeft = rateOfChangeDistanceLeft_SAMPLE[10];
+      lastDistanceLeft = distanceLeft;
       i = (i + 1) % 10;
       ++allSensor;
     } else {
@@ -87,6 +93,11 @@ ISR (PCINT0_vect) {
       distanceRight_SAMPLE[i] = (TCNT1 - currentSensorRight + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
       distanceRight_SAMPLE[10] += distanceRight_SAMPLE[i];
       distanceRight = ((SOUND_SPEED * STEP_TIME_64) * (distanceRight_SAMPLE[10] / 10)) / 2;
+      rateOfChangeDistanceRight_SAMPLE[10] -= rateOfChangeDistanceRight_SAMPLE[i];
+      rateOfChangeDistanceRight_SAMPLE[i] = distanceRight - lastDistanceRight;
+      rateOfChangeDistanceRight_SAMPLE[10] += rateOfChangeDistanceRight_SAMPLE[i];
+      rateOfChangeDistanceRight = rateOfChangeDistanceRight_SAMPLE[10];
+      lastDistanceRight = distanceRight;
       i = (i + 1) % 10;
       ++allSensor;
     } else {
@@ -104,7 +115,15 @@ void loop() {
   digitalWrite(trig, LOW);
   Serial.print(distanceHead);
   Serial.print(" ");
+  Serial.print(distanceLeft);
+  Serial.print(" ");
+  Serial.print(distanceRight);
+  Serial.print(" ");
   Serial.print(0);
   Serial.print(" ");
-  Serial.println(rateOfChangeDistanceHead);
+  Serial.print(rateOfChangeDistanceHead);
+  Serial.print(" ");
+  Serial.print(rateOfChangeDistanceLeft);
+  Serial.print(" ");
+  Serial.println(rateOfChangeDistanceRight);
 }
