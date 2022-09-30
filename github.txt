@@ -25,3 +25,4 @@ Git Collaborating
         Rebase to main branch
             git rebase -i origin/main
             git push origin feature/introduction -f
+	git log --all --decorate --oneline --graph
