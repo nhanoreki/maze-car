@@ -11,6 +11,7 @@ const byte echoR = 11;
 
 
 volatile float distanceHead, distanceLeft, distanceRight;
+volatile float rateOfChangeDistanceHead, lastDistanceHead = 0;
 volatile float distanceHead_SAMPLE[11], distanceLeft_SAMPLE[11], distanceRight_SAMPLE[11];
 volatile unsigned long currentSensorHead = 0, currentSensorLeft = 0, currentSensorRight = 0;
 volatile byte allSensor = 0;
@@ -18,6 +19,7 @@ volatile bool headHigh = false, leftHigh = false, rightHigh = false;
 volatile bool headIsRec = false;
 
 void setup() {
+  Serial.begin(9600);
   pinMode(trig, OUTPUT);
   pinMode(echoH, INPUT);
   pinMode(echoL, INPUT);
@@ -51,6 +53,8 @@ ISR (PCINT0_vect) {
       distanceHead_SAMPLE[i] = (TCNT1 - currentSensorHead + TIMER1_STEP_CYCLE) % TIMER1_STEP_CYCLE;
       distanceHead_SAMPLE[10] += distanceHead_SAMPLE[i];
       distanceHead = ((SOUND_SPEED * STEP_TIME_64) * (distanceHead_SAMPLE[10] / 10)) / 2;
+      rateOfChangeDistanceHead = (distanceHead - lastDistanceHead) / ((distanceHead_SAMPLE[10] / 10) * STEP_TIME_64);
+      lastDistanceHead = distanceHead;
       i = (i + 1) % 10;
       ++allSensor;
     } else {
@@ -94,4 +98,7 @@ ISR (PCINT0_vect) {
 
 void loop() {
   digitalWrite(trig, LOW);
+  Serial.print(distanceHead);
+  Serial.print(" ");
+  Serial.println(rateOfChangeDistanceHead);
 }
