@@ -115,15 +115,5 @@ void loop() {
   digitalWrite(trig, LOW);
   Serial.print(distanceHead);
   Serial.print(" ");
-  Serial.print(distanceLeft);
-  Serial.print(" ");
-  Serial.print(distanceRight);
-  Serial.print(" ");
-  Serial.print(0);
-  Serial.print(" ");
-  Serial.print(rateOfChangeDistanceHead);
-  Serial.print(" ");
-  Serial.print(rateOfChangeDistanceLeft);
-  Serial.print(" ");
-  Serial.println(rateOfChangeDistanceRight);
+  Serial.println(rateOfChangeDistanceHead);
 }

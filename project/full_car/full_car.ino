@@ -199,9 +199,9 @@ void loop() {
   }
 
   if (counterPulse.Status == false) {
-//    if (distanceHead < 80 && setSpeedPWM > 150) {
-//      setSpeedPWM--;
-//    }
+    if (distanceHead < 80 && setSpeedPWM > 150) {
+      setSpeedPWM--;
+    }
     if (distanceLeft < 15) {
       motorLeft(255, 1);
       motorRight(175, 1);
